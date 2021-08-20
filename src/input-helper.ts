@@ -4,7 +4,7 @@ import * as github from '@actions/github'
 import * as path from 'path'
 import {IGitSourceSettings} from './git-source-settings'
 
-export function getInputs(): IGitSourceSettings {
+export function getInputs(customSetting?: { repository?: string, repositoryPath?: string, ref?: string }): IGitSourceSettings {
   const result = ({} as unknown) as IGitSourceSettings
 
   // GitHub workspace
@@ -18,7 +18,7 @@ export function getInputs(): IGitSourceSettings {
 
   // Qualified repository
   const qualifiedRepository =
-    core.getInput('repository') ||
+  customSetting?.repository || core.getInput('repository') ||
     `${github.context.repo.owner}/${github.context.repo.repo}`
   core.debug(`qualified repository = '${qualifiedRepository}'`)
   const splitRepository = qualifiedRepository.split('/')
@@ -35,7 +35,7 @@ export function getInputs(): IGitSourceSettings {
   result.repositoryName = splitRepository[1]
 
   // Repository path
-  result.repositoryPath = core.getInput('path') || '.'
+  result.repositoryPath = customSetting?.repositoryPath || core.getInput('path') || '.'
   result.repositoryPath = path.resolve(
     githubWorkspacePath,
     result.repositoryPath
@@ -56,7 +56,7 @@ export function getInputs(): IGitSourceSettings {
     `${github.context.repo.owner}/${github.context.repo.repo}`.toUpperCase()
 
   // Source branch, source version
-  result.ref = core.getInput('ref')
+  result.ref = customSetting?.ref || core.getInput('ref')
   if (!result.ref) {
     if (isWorkflowRepository) {
       result.ref = github.context.ref

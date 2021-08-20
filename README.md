@@ -4,6 +4,8 @@
 
 # Checkout V2
 
+<b>Checkout action and can use in action for nodejs.</b>
+
 This action checks-out your repository under `$GITHUB_WORKSPACE`, so your workflow can access it.
 
 Only a single commit is fetched by default, for the ref/SHA that triggered the workflow. Set `fetch-depth: 0` to fetch all history for all branches and tags. Refer [here](https://help.github.com/en/articles/events-that-trigger-workflows) to learn which commit `$GITHUB_SHA` points to for different events.
@@ -230,6 +232,31 @@ jobs:
           git add .
           git commit -m "generated"
           git push
+```
+
+## Use in github actions nodeJS script
+```ts
+// a custom action can checkout github repo
+import * as core from '@actions/core'
+import * as gitSourceProvider from 'github-checkout/lib/git-source-provider'
+import * as inputHelper from 'github-checkout/lib/input-helper'
+
+const repoSettings = {
+  repository: 'NervJS/taro-native-shell',
+  repositoryPath: 'taro-native-shell',
+  ref: '0.64.0'
+}
+const settings = inputHelper.getInputs(repoSettings)
+
+try {
+  await gitSourceProvider.getSource(settings)
+} catch (error) {
+  core.setFailed(error.message)
+}
+```
+use example:
+```yml
+  - uses: a-custom-action
 ```
 
 # License
